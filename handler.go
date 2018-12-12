@@ -96,8 +96,9 @@ func (h *Handler) Do() {
 // OnExcept will executed by parallel when application panic occur
 // Note that the type of e is unknown.
 func (h *Handler) OnExcept(e interface{}) {
-	numIn := reflect.TypeOf(h).NumIn()
-	h.args = append(h.args[0:numIn], e)
+	numIn := reflect.TypeOf(h.f).NumIn()
+	h.args = append(h.args[0:numIn-1], e)
+	//h.args = append(h.args, e)
 	h.Do()
 }
 
