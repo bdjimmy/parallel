@@ -20,6 +20,7 @@ type Handler struct {
 	args []interface{}
 	// The type of every receiver must be ptr, to receive the return value of f call
 	receivers []interface{}
+	exception *Handler
 }
 
 // NewHandler create a new Handler which contains a single function call
@@ -38,6 +39,19 @@ func (h *Handler) SetReceivers(receivers ...interface{}) *Handler {
 
 // Do call the function and return values if exists
 func (h *Handler) Do() {
+	defer func() {
+		err := recover()
+		if err != nil {
+			if err == ErrArgNotFunction || err == ErrInArgLenNotMatch || err == ErrOutArgLenNotMatch || err == ErrRecvArgTypeNotPtr || err == ErrRecvArgNil {
+				panic(err)
+			}
+			if h.exception != nil {
+				h.exception.OnExcept(err)
+			} else {
+				panic(err)
+			}
+		}
+	}()
 	f := reflect.ValueOf(h.f)
 	typ := f.Type()
 	//check if f is a function
@@ -82,6 +96,12 @@ func (h *Handler) Do() {
 // OnExcept will executed by parallel when application panic occur
 // Note that the type of e is unknown.
 func (h *Handler) OnExcept(e interface{}) {
-	h.args = append(h.args, e)
+	numIn := reflect.TypeOf(h).NumIn()
+	h.args = append(h.args[0:numIn], e)
 	h.Do()
+}
+
+func (h *Handler) Except(f interface{}, args ...interface{}) *Handler {
+	h.exception = NewHandler(f, args...)
+	return h
 }
