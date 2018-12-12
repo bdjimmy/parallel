@@ -1,4 +1,4 @@
-### Parallel
+### Parallel, mytest
 
 [![Build Status](https://travis-ci.org/buptmiao/parallel.svg?branch=master)](https://travis-ci.org/buptmiao/parallel)
 [![Coverage Status](https://coveralls.io/repos/github/buptmiao/parallel/badge.svg?branch=master)](https://coveralls.io/github/buptmiao/parallel?branch=master)
